@@ -1,10 +1,10 @@
 import { FormikProps, withFormik } from 'formik';
 import React from 'react';
+import * as Yup from 'yup';
+
+import { Button } from '../../components/Button/Input';
 import { Input } from '../../components/Input/Input';
 import { Spacing } from '../../components/Spacing/Spacing';
-import { Title } from '../../components/Title/Title';
-import * as Yup from 'yup';
-import { Button } from '../../components/Button/Input';
 import { ERROR_MESSAGES } from '../../utils/constants';
 
 type CreateAccountProps = {
@@ -27,8 +27,6 @@ const CreateAccountForm: React.FC<CreateAccountProps & FormikProps<CreateAccount
   const isTouched = (touched: boolean | undefined) => !!touched || !!submitCount;
   
   return <form noValidate={true} onSubmit={handleSubmit}>
-    <Title size="medium">Crie a sua conta</Title>
-    <Spacing size="small"/>
     <Input
       id="customerName"
       data-testid="input-customerName"

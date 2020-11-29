@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { getAccountById } from './api';
-import { Account } from './api/models';
+import { findAllAccounts, getAccountById } from './api';
+import { Account, AccountOption } from './api/models';
 import styles from './App.module.scss';
 import { Button } from './components/Button/Input';
 import { LoaderComponent } from './components/Loader';
+import { SelectInput } from './components/Select/Input';
 import { Spacing } from './components/Spacing/Spacing';
 import { Title } from './components/Title/Title';
+import { AccountsContext } from './context/accounts';
 import { CreateAccount } from './domain/CreateAccount';
 import { TransactionComponent } from './domain/Transaction';
+import { TransactionHistory } from './domain/TransactionHistory';
 import { formatter } from './utils';
 
 export enum UserAction {
@@ -22,15 +25,49 @@ export enum UserAction {
 
 function App() {
   const [user, setUserState] = useState<Account>();
+  const { accountsOptions, setAccountsOptions } = useContext(AccountsContext);
 
   const [{ isLoading, userAction }, setState] = useState({
     isLoading: false,
     userAction: UserAction.CREATE_ACCOUNT
   });
 
+  useEffect(() => {
+    setState((prev) => ({ ...prev, isLoading: true }));
+
+    findAllAccounts()
+      .then(res => setAccountsOptions(res.data))
+      .catch(err => {
+        toast.error("Não foi possível carregar as contas.");
+        console.error(err);
+      })
+      .finally(() => setState((prev) => ({ ...prev, isLoading: false })));
+  }, [setAccountsOptions]);
+
+  const handleChangeAccount = ({ value }: AccountOption) => {
+    setState((prev) => ({ ...prev, isLoading: true }));
+
+    getAccountById(value)
+      .then(res => {
+        setUserState(res.data);
+        toast.success("Conta selecionada com sucesso");
+      })
+      .catch(err => {
+        toast.error("Não foi possível carregar a conta selecionada.");
+        console.error(err);
+      })
+      .finally(() => setState((prev) => ({ ...prev, isLoading: false })));
+  };
+
   const handleCreateAccount = (account: Account) => {
-    setUserState(account);
+    const accountOption: AccountOption = {
+      label: account.username,
+      value: account.id
+    };
+    setAccountsOptions((prev) => [...prev, accountOption]);
     setState((prev) => ({ ...prev, userAction: UserAction.DEPOSIT }));
+    setUserState(account);
+    toast.warning("Já selecionamos a sua nova conta como principal.");
   };
 
   const handleTransactionSuccesss = () => {
@@ -48,10 +85,26 @@ function App() {
     <div className={styles['layout']}>
       <LoaderComponent show={isLoading}/>
       <header className={styles['header']}>
-        <Title>Gerenciador de Conta Corrente</Title>
-        {user
-          ? <Title>Cuide bem do seu dinheiro! {user.username}</Title>
-          : <Title>Crie a sua conta ou seleciona uma existente!</Title>}
+        <div className={styles['title']}>
+          <Title>Gerenciador de Conta Corrente</Title>
+          {user
+            ? <Title>Cuide bem do seu dinheiro! {user.customerName}</Title>
+            : <Title>Crie a sua conta ou seleciona uma existente!</Title>}
+        </div>
+        <div className={styles['change-account']}>
+          <SelectInput 
+            id="input-change-account"
+            data-testid="input-change-account"
+            label="Troque de conta"
+            name="change-account"
+            options={accountsOptions}
+            value={{
+              value: user?.id,
+              label: user?.username
+            } || ''}
+            onChange={(value) => { handleChangeAccount(value); }}
+          />
+        </div>
       </header>
 
       <section className={styles['body']}>
@@ -65,7 +118,10 @@ function App() {
           {userAction === UserAction.CREATE_ACCOUNT &&
             <CreateAccount handleSuccess={handleCreateAccount} />}
           {!!user && <>
-            {userAction === UserAction.DEPOSIT &&
+            {userAction === UserAction.HISTORY &&
+              <TransactionHistory
+                accountId={user.id}/>}
+              {userAction === UserAction.DEPOSIT &&
               <TransactionComponent
                 sourceAccountId={user.id}
                 type={UserAction.DEPOSIT}

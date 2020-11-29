@@ -1,6 +1,6 @@
 import axios from "axios";
 import { uuid } from "uuidv4";
-import { Account, AccountRequest, Transaction, TransactionRequest, TransactionType } from "./models";
+import { Account, AccountRequest, AccountOption, Transaction, TransactionRequest, TransactionType } from "./models";
 
 const request = axios.create({
   baseURL: "http://localhost:8080",
@@ -12,6 +12,10 @@ export const findAccountByUsername = (username: string) => {
   return request.get<Account>('/accounts', { params: { username }});
 };
 
+export const findAllAccounts = () => {
+  return request.get<AccountOption[]>('/accounts/options');
+};
+
 export const getAccountById = (accountId: string) => {
   return request.get<Account>(`/accounts/${accountId}`);
 };
@@ -21,7 +25,7 @@ export const createAccount = (body: AccountRequest) => {
 };
 
 export const findTransactionByAccountId = (accountId: string) => {
-  return request.get<Transaction>('/transactions', { params: { accountId }});
+  return request.get<Transaction[]>('/transactions', { params: { accountId }});
 };
 
 export const deposit = (accountId: string, amount: number) => {

@@ -26,6 +26,11 @@ export type AccountRequest = {
   type: AccountType;
 };
 
+export type AccountOption = {
+  value: string;
+  label: string;
+};
+
 export type Transaction = {
   id: string;
   destinationAccountId: string;

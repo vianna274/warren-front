@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+
 import { createAccount } from '../../api';
 import { Account, AccountType } from '../../api/models';
-import { UserAction } from '../../App';
 import { LoaderComponent } from '../../components/Loader';
+import { Spacing } from '../../components/Spacing/Spacing';
+import { Title } from '../../components/Title/Title';
 import CreateAccountForm, { CreateAccountFormValues } from './form';
 
 type CreateAccountProps = {
@@ -29,6 +31,8 @@ export const CreateAccount: React.FC<CreateAccountProps> = ({ handleSuccess }) =
 
   return <>
     <LoaderComponent show={loading}/>
+    <Title data-testid="title-create-account" size="medium">Crie a sua conta</Title>
+    <Spacing size="small"/>
     <CreateAccountForm submit={submit}/>
   </>;
 };

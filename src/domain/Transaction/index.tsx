@@ -5,6 +5,7 @@ import { deposit, payment, transfer, withdrawal } from '../../api';
 import { UserAction } from '../../App';
 import { LoaderComponent } from '../../components/Loader';
 import { Title } from '../../components/Title/Title';
+import { parseCurrencyToFloat } from '../../utils';
 import { ERROR_MESSAGES } from '../../utils/constants';
 import TransactionForm, { TransactionFormFormValues } from './form';
 
@@ -24,10 +25,10 @@ const USER_ACTION_DESCRIPTION = {
 export const TransactionComponent: React.FC<TransactionFormProps> = ({ handleSuccess, type, sourceAccountId }) => {
   const [loading, setLoading] = useState(false);
 
-  const submit = async ({ destinationAccountId, amount }: TransactionFormFormValues) => {
+  const submit = async ({ destinationAccount, amount }: TransactionFormFormValues) => {
     try {
       setLoading(true);
-      const parsedAmount = parseFloat(amount);
+      const parsedAmount = parseCurrencyToFloat(amount);
       switch (type) {
         case UserAction.DEPOSIT:
           await deposit(sourceAccountId, parsedAmount);
@@ -36,11 +37,15 @@ export const TransactionComponent: React.FC<TransactionFormProps> = ({ handleSuc
           await payment(sourceAccountId, parsedAmount);
           break;
         case UserAction.TRANSFER:
-          if (!destinationAccountId) {
+          if (!destinationAccount?.value) {
             throw Error(ERROR_MESSAGES.invalidPayload());
           }
 
-          await transfer({ destinationAccountId, sourceAccountId, amount: parsedAmount });
+          await transfer({
+            sourceAccountId,
+            amount: parsedAmount,
+            destinationAccountId: destinationAccount.value,
+          });
           break;
         case UserAction.WITHDRAWAL:
           await withdrawal(sourceAccountId, parsedAmount);
@@ -63,7 +68,7 @@ export const TransactionComponent: React.FC<TransactionFormProps> = ({ handleSuc
   };
 
   return <>
-    <Title>{USER_ACTION_DESCRIPTION[type]}</Title>
+    <Title data-testid="title-transaction">{USER_ACTION_DESCRIPTION[type]}</Title>
     <LoaderComponent show={loading}/>
     <TransactionForm type={type} submit={submit}/>
   </>;

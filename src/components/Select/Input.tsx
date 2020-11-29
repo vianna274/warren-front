@@ -1,22 +1,25 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
+import Select from 'react-select';
+
 import { Paragraph } from '../Paragraph/Paragraph';
 import { Spacing } from '../Spacing/Spacing';
 
-type InputProps = {
+type SelectProps = {
   id: string;
   'data-testid': string;
   label: string;
-  value: string;
+  value?: any;
+  options: any[];
   errorMessage?: string;
   name: string;
-  onChange: (e: ChangeEvent) => void;
+  onChange: (value: any) => void;
 };
 
-export const Input: React.FC<InputProps> = ({ errorMessage, label, ...props }) => {
+export const SelectInput: React.FC<SelectProps> = ({ errorMessage, label, ...props }) => {
 
   return <div>
     <label>{label}</label>
-    <input {...props}/>
+    <Select {...props} />
     <Spacing size="small" />
     <Paragraph size="medium" color="error">{errorMessage || ''}</Paragraph>
   </div>
