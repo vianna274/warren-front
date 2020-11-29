@@ -1,0 +1,9 @@
+@import '../../styles/variables.scss';
+
+.-small {
+  min-height: $baseline;
+}
+
+.-large{
+  min-height: $baseline * 2;
+}

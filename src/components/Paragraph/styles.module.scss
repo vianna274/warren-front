@@ -1,0 +1,17 @@
+@import '../../styles/variables.scss';
+
+.-error {
+  color: $error;
+}
+
+.-default {
+  color: $default;
+}
+
+.-medium {
+  font-size: $baseline * 1.5;
+}
+
+.-large {
+  font-size: $baseline * 2;
+}

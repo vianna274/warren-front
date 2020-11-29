@@ -1,0 +1,28 @@
+@import '../../styles/variables.scss';
+
+.blur-overlay {
+  backdrop-filter: blur(1px);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  display: none;
+
+  &.-show {
+    display: block;
+  }
+}
+
+.loader {
+  color: $green;
+  height: 100%;
+  width: 100%;
+  display: none;
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  z-index: 1;
+
+  &.-show {
+    display: block;
+  }
+}
